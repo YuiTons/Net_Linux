@@ -29,7 +29,7 @@ git push -u origin master
 
 Setup tokyo-metro.vim
 
-copy /usr/share/vim/vim80/color
+copy /usr/share/vim/vim80/colors
 
 vi /etc/vim/vimrc
 
