@@ -24,3 +24,13 @@ git push -u origin master
 git remote add origin https://github.com/YuiTons/Net_Linux.git
 
 git push -u origin master
+
+------------------------------------------------------------------------
+
+Setup tokyo-metro.vim
+
+copy /usr/share/vim/vim80/color
+
+vi /etc/vim/vimrc
+
+add :colorscheme tokyo-metro
