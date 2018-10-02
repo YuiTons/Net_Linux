@@ -32,17 +32,18 @@ int main(int argc, char *argv[])
 	clnt_adr_sz = sizeof(clnt_adr);
 	while(1)
 	{
-		str_len = recvfrom(serv_sock, message, BUF_SIZE, 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);	
-		//sendto(serv_sock, message, str_len, 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz); 	
+		str_len = recvfrom(serv_sock, message, BUF_SIZE, 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz); 	
+		sendto(serv_sock, message, str_len, 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz); 	
+
 		printf("Message from client: %s \n", message);
 
 		fputs("Insert message(q to quit): ",stdout);
 		fgets(message, sizeof(message), stdin);
 		if((!strcmp(message, "q\n")||!strcmp(message, "Q\n"))) break;
 
-		sendto(serv_sock, message, strlen(message), 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz);
-		//str_len = recvfrom(serv_sock, message, BUF_SIZE, 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
-		//printf("Message from client: %s \n",message);
+		sendto(serv_sock, message, strlen(message), 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz); 	
+		str_len = recvfrom(serv_sock, message, BUF_SIZE, 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz); 	
+		
 	}
 	
 	close(serv_sock);

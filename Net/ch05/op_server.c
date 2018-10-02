@@ -41,14 +41,14 @@ int main(int argc, char *argv[]){
 	setupBind(&listenSock, &listenAddr);
 	// 4) 연결요청 대기를 위한 함수 호출
 	listenSocket(&listenSock);
-	for(i=0;i<3;i++)
+	for(i=0;i<5;i++)
 	// 5) 연결요청에 대한 수락 여부 결정
 	{	
 		opnd_cnt = 0;
 		accetpConnect(&listenSock, &dataSock, &clntAddr);
-		read(dataSock, &opnd_cnt, 4);
+		read(dataSock, &opnd_cnt, 1);
 		recv_len = 0;
-		while((opnd_cnt + 4) > recv_len )
+		while((opnd_cnt * OPSZ +1) > recv_len )
 		{
 			recv_cnt = read(dataSock, &opinfo[recv_len], BUF_SIZE-1);
 			if(recv_cnt == -1) error_handling("recv read() error");
@@ -56,15 +56,9 @@ int main(int argc, char *argv[]){
 			recv_len += recv_cnt;
 
 		}
-		printf("client: %s \n", opinfo);
-		/*fputs("String length: ", stdout);
-		scanf("%d", (int*)&opmsg);
-
-		fputs("String : ", stdout);
-		scanf("%s", &opmsg[4]);
-
-		fgetc(stdin);*/
-
+		fputs("while end", stdout);
+		result = calculate(opnd_cnt, (int*)opinfo, opinfo[recv_len - 1]);
+		write(dataSock, &result, sizeof(result));
 		close(dataSock);	
 
 	}
