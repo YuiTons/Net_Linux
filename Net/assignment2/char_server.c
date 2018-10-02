@@ -25,7 +25,7 @@ int calculate(int opnum, int *opnds, char op);
 int main(int argc, char *argv[]){	
 	int listenSock, dataSock;	// 연결요청과 데이터 송수신을 위한 소켓 선언
 	struct sockaddr_in  listenAddr, clntAddr;	// 연결요청을 대기할 소켓의 주소값과
-												// 클라이언트의 주소값 정보
+						// 클라이언트의 주소값 정보
 	int clntAddrSize;			// 클라이언트 주소값의 크기 정보
 	int opnd_cnt, recv_len, recv_cnt, i, result;
 	char opinfo[BUF_SIZE];
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
 	setupBind(&listenSock, &listenAddr);
 	// 4) 연결요청 대기를 위한 함수 호출
 	listenSocket(&listenSock);
-	for(i=0;i<5;i++)
+	for(i=0;i<3;i++)
 	// 5) 연결요청에 대한 수락 여부 결정
 	{	
 		opnd_cnt = 0;

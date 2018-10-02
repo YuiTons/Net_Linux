@@ -23,14 +23,15 @@ int main(int argc, char *argv[]){
 	int result;
 
 
-	dataSock =	socket(PF_INET, SOCK_STREAM, 0);
+	dataSock = socket(PF_INET, SOCK_STREAM, 0);
 
 	memset(&servAddr, 0, sizeof(servAddr));
 	servAddr.sin_family = AF_INET;
 	servAddr.sin_addr.s_addr = inet_addr(argv[1]);
 	servAddr.sin_port = htons( atoi(argv[2]) );
 
-	if(connect(dataSock, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) error_handling("connect() error!");
+	if(connect(dataSock, (struct sockaddr*)&servAddr, sizeof(servAddr)) == -1) 
+		error_handling("connect() error!");
 	else
 		puts("Connected");
 
@@ -38,19 +39,16 @@ int main(int argc, char *argv[]){
 	scanf("%d", (int*)&opmsg);
 	
 	fputs("String : ", stdout);
-	scanf("%s", &opsmg[4]);
+	scanf("%s", &opmsg[4]);
 
 	fgetc(stdin);
 	
-
+	opnd_cnt = strlen(opmsg);
 	write(dataSock, opmsg, opnd_cnt*OPSZ+2);
 	read(dataSock, &result, RLT_SIZE);
 
 	printf("Operation result : %d \n", result);
 	close(dataSock);
-
-
-
 
 	return 0;
 }
