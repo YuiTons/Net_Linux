@@ -18,9 +18,9 @@ int main(int argc, char *argv[]){
 	char message[100];
 	int len, idx=0, str_len=0, read_len=0, i;
 
-	int opnd_cnt;
+	int opnd_cnt, recv_len, recv_cnt;
 	char opmsg[BUF_SIZE];
-	int result;
+	char opinfo[BUF_SIZE];
 
 
 	dataSock = socket(PF_INET, SOCK_STREAM, 0);
@@ -35,19 +35,36 @@ int main(int argc, char *argv[]){
 	else
 		puts("Connected");
 
-	fputs("String length : ", stdout);
-	scanf("%d", (int*)&opmsg);
+	for(i = 0; i < 3; i++)
+	{
+		fputs("String length : ", stdout);
+		scanf("%d", (int*)&opmsg);
 	
-	fputs("String : ", stdout);
-	scanf("%s", &opmsg[4]);
+		fputs("String : ", stdout);
+		scanf("%s", &opmsg[4]);
 
-	fgetc(stdin);
-	
-	opnd_cnt = strlen(opmsg);
-	write(dataSock, opmsg, opnd_cnt*OPSZ+2);
-	read(dataSock, &result, RLT_SIZE);
+		fgetc(stdin);
+		len = *(int*)opmsg;
 
-	printf("Operation result : %d \n", result);
+		write(dataSock, opmsg, len + 4);
+		
+		opnd_cnt = 0;
+		read(dataSock, &opnd_cnt, 4);
+		recv_len = 0;
+
+		while(opnd_cnt > recv_len)
+		{
+			recv_cnt = read(dataSock, &opinfo[recv_len], 1);
+			if(recv_cnt == -1) error_handling("recv read() error!");
+
+			recv_len += recv_cnt;
+		}
+		opinfo[recv_len] = '\0';
+		printf("server: %s \n", opinfo);
+		//read(dataSock, &result, BUF_SIZE);
+		//printf("server: %s", result);
+	}
+
 	close(dataSock);
 
 	return 0;

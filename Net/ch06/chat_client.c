@@ -32,13 +32,14 @@ int main(int argc, char *argv[])
 		fgets(message, sizeof(message), stdin);
 		if((!strcmp(message, "q\n")||!strcmp(message, "Q\n")))	break;	
 		sendto(sock, message, strlen(message), 0, (struct sockaddr*)&serv_adr, sizeof(serv_adr));
-		str_len = recvfrom(sock, message, BUF_SIZE, 0, (struct sockaddr*)&from_adr, &adr_sz);
+		//str_len = recvfrom(sock, message, BUF_SIZE, 0, (struct sockaddr*)&from_adr, &adr_sz);
 
-		message[str_len]='\0';
-		printf("Message from server: %s \n",message);
+		//message[str_len]='\0';
+		//printf("Message from server: %s \n",message);
 
 		str_len = recvfrom(sock, message, BUF_SIZE, 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
-		sendto(sock, message, str_len, 0, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
+		printf("Message from server: %s \n",message);
+		sendto(sock, message, str_len, 0, (struct sockaddr*)&clnt_adr, clnt_adr_sz);
 
 	}
 	
