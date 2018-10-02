@@ -1,0 +1,2 @@
+tmp1 -> listen, data sock, send data1.txt
+tmp2 -> data sock, receive data1.txt and save copy.txt
