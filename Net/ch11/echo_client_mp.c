@@ -33,7 +33,11 @@ int main(int argc, char *argv[])
 		error_handling("connect() error!");
 	else
 		puts("Connected...........");
-	
+	fputs("Input Name: ", stdout);
+	fgets(message, BUF_SIZE, stdin);
+
+	write(sock, message, strlen(message));
+
 	while(1) 
 	{
 		fputs("Input message(Q to quit): ", stdout);

@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <fcntl.h>
 
@@ -42,18 +43,19 @@ int main(int argc, char *argv[]){
 	time_t timer;
 	struct tm *t;
 	pid_t pid;
-	//struct sigaction act;
+	struct sigaction act;
 	int state;
 
 	int fds[2];
 
-	/*
+	
 	act.sa_handler = read_childproc;
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = 0;
-	*/
+	state = sigaction(SIGCHLD, &act, 0);
+	
 
-	fd = open("log.txt", O_CREAT | O_TRUNC | O_WRONLY);
+	fd = open("log.txt", O_APPEND | O_WRONLY);
 
 	// 1) 소켓을 생성하는 함수 호출
 	createSocket(&listenSock);
@@ -81,10 +83,9 @@ int main(int argc, char *argv[]){
 			strcat(tmp, " ");
 			strcat(tmp, chatname);
 			write(fd, tmp, strlen(tmp));
-			printf("%s", tmp);
 
 			while((strLen=read(dataSock, message, BUF_SIZE))!=0)
-				write(dataSock, message, strlen);
+				write(dataSock, message, strLen);
 			close(dataSock);
 			return 0;
 		}
@@ -98,6 +99,13 @@ int main(int argc, char *argv[]){
 	close(listenSock);
 
 	return 0;
+}
+
+void read_childproc(int sig) {
+	pid_t pid;
+	int status;
+	pid=waitpid(-1, &status, WNOHANG);
+	printf("removed proc id: %d\n", pid);
 }
 
 void error_handling(char *msg) {
