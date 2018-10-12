@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 	int sock;
 	pid_t pid;
 	char buf[BUF_SIZE];
+	char name[18];
 	struct sockaddr_in serv_adr;
 	if(argc!=3) {
 		printf("Usage : %s <IP> <port>\n", argv[0]);
@@ -32,6 +33,9 @@ int main(int argc, char *argv[])
 
 	read(sock, buf, BUF_SIZE);
 	strcpy(buf, "user name : ");
+	fputs("User name: ". stdout);
+	fgets(name, stdin);
+	strcat(buf, name);
 	write(sock, buf, BUF_SIZE);
 
 	pid=fork();

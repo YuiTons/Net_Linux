@@ -19,6 +19,8 @@ void initSock(int* serv_sock, struct sockaddr_in* serv_adr, int adr_sz);
 
 int flag = 1;
 int fds[2];
+//int fds[2][2];
+int clnt_sock_arr[2] = {-1, -1};
 
 int main(int argc, char *argv[])
 {
@@ -32,6 +34,7 @@ int main(int argc, char *argv[])
 	pid_t pid;
 	char buf[BUF_SIZE];
 	int str_len, i;
+	int Client_Count = 0;
 	
 	struct sigaction act, act2;
 	int state, state2;
@@ -52,6 +55,7 @@ int main(int argc, char *argv[])
 	pipe(fds);
 	pid = fork();
 	if(pid == 0) {
+		//pipe(fds[Client_Count]);
 		FILE *fp = fopen("log.txt", "at");
 		char msgbuf[BUF_SIZE];
 		int i, len;
@@ -87,13 +91,18 @@ int main(int argc, char *argv[])
 	
 	// connection admission control
 	adr_sz=sizeof(clnt_adr);
-	while(1) {
+	while(1) 
+	{
 		clnt_sock=accept(serv_sock, (struct sockaddr*)&clnt_adr, &adr_sz);
 		if(clnt_sock==-1) {
 			continue;
-		} else {
-			puts("new client connected...");
 		}
+		 else {
+			puts("new client connected...");
+			clnt_sock_arr[Client_Count++] = clnt_sock;
+			Client_Count = Client_Count % 2;
+		}
+		
 	
 		pid = fork();
 		if(pid == -1) {
@@ -107,7 +116,7 @@ int main(int argc, char *argv[])
 			char helloMsg[] = "hello";
 			int lenT;
 			write(clnt_sock, helloMsg, sizeof(helloMsg));
-			lenT = read(clnt_sock, buf, BUF_SIZE);		
+			lenT = read(clnt_sock, buf, BUF_SIZE);
 			buf[lenT] = 0;
 			printf("%s %d \n", buf, lenT);
 			
@@ -124,15 +133,16 @@ int main(int argc, char *argv[])
 			strcat(tmp, buf);
 			strcat(tmp, "\n\0");
 			write(fds[1], tmp, strlen(tmp));
-	
+
 			while((str_len=read(clnt_sock, buf, BUF_SIZE))!=0) {
-				write(clnt_sock, buf, str_len);
+				if(clnt_sock == clnt_sock_arr[0]) write(clnt_sock_arr[1], buf, BUF_SIZE);
+				else write(clnt_sock_arr[0], buf, BUF_SIZE);
 			}
 			close(clnt_sock);
 			puts("client desconnected...");
 			return 0;
 		} else {
-			close(clnt_sock);			
+			close(clnt_sock);
 		}
 	}
 	close(serv_sock);
