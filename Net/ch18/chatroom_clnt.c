@@ -8,7 +8,6 @@
 	
 #define BUF_SIZE 100
 #define NAME_SIZE 20
-#define RECV_SIZE_SERINFO 127
 	
 void * send_msg(void * arg);
 void * recv_msg(void * arg);
@@ -39,8 +38,10 @@ int main(int argc, char *argv[])
 	if(connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1)
 		error_handling("connect() error");
 	
-	//pthread_create(&snd_thread, NULL, send_msg, (void*)&sock);
+	//1
+	pthread_create(&snd_thread, NULL, send_msg, (void*)&sock);
 	pthread_create(&rcv_thread, NULL, recv_msg, (void*)&sock);
+
 	pthread_join(snd_thread, &thread_return);
 	pthread_join(rcv_thread, &thread_return);
 	close(sock);  
@@ -49,74 +50,46 @@ int main(int argc, char *argv[])
 	
 void * send_msg(void * arg)   // send thread main
 {
-	int sock=*((int*)arg);
-	char name_msg[NAME_SIZE+BUF_SIZE];
-	while(1) 
+	//2
+	int sock = *((int*)arg);
+	char name_msg[BUF_SIZE + NAME_SIZE];
+
+	fgets(msg, BUF_SIZE, stdin);
+	write(sock, msg, strlen(msg));
+
+	while(1)
 	{
 		fgets(msg, BUF_SIZE, stdin);
-		if(!strcmp(msg,"q\n")||!strcmp(msg,"Q\n")) 
+		if((!strcmp(msg, "q\n")) || (!strcmp(msg, "Q\n")))
 		{
-			sprintf(name_msg,"%s %s", name, "left the room\n");
+			sprintf(name_msg, "%s close chat\n",name);
 			write(sock, name_msg, strlen(name_msg));
 			close(sock);
 			exit(0);
 		}
-		sprintf(name_msg,"%s %s", name, msg);
+		sprintf(name_msg, "%s: %s",name, msg);
 		write(sock, name_msg, strlen(name_msg));
 	}
+
 	return NULL;
 }
 	
 void * recv_msg(void * arg)   // read thread main
 {
-	int sock=*((int*)arg);
-	char name_msg[NAME_SIZE+BUF_SIZE];
-	char sinfo[RECV_SIZE_SERINFO];
-	char *p;
-	int str_len, recv_len = 0;
-	int slen = 0, i, j;
+	//3
+	int sock = *((int*)arg);
+	char name_msg[BUF_SIZE + NAME_SIZE];
+	int str_len;
 
-	for(j=0;j<2;j++)
+	while(1)
 	{
-		slen = 0;
-		while(1)	
-		{
-			str_len=read(sock, sinfo, 1);
-			if(str_len == -1) return (void*)-1;
-			if(sinfo[0]!='$')
-			{
-				slen = slen*10 + (sinfo[0]-'0');
-			}
-			else
-				break;
-		}
-
-		recv_len = 0;
-		while(recv_len < slen)
-		{
-			str_len = read(sock, &sinfo[recv_len], slen);
-			recv_len += str_len;
-		}
-
-		printf("%d", j+1);
-		fputs(". ip: ", stdout);
-		fputs(strtok(sinfo, "$"), stdout); //ip
-		strtok(NULL,"$"); //port
-		fputs(" ",stdout);
-		fputs(strtok(NULL, "$"), stdout); //name
-		fputs(" ",stdout);
-		fputs(strtok(NULL, "$"), stdout); //cnt
-		fputs("\n", stdout);
-	}
-
-	/*while(1)
-	{
-		str_len=read(sock, name_msg, NAME_SIZE+BUF_SIZE-1);
-		if(str_len==-1) 
+		str_len = read(sock, name_msg, BUF_SIZE+NAME_SIZE);
+		if(str_len == -1)
 			return (void*)-1;
-		//name_msg[str_len]=0;
-		//fputs(name_msg, stdout);
-	}*/
+		name_msg[str_len] = 0;
+		fputs(name_msg, stdout);
+	}
+	
 	return NULL;
 }
 	
