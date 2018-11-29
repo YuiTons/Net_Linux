@@ -25,7 +25,7 @@ void error_handling(char * msg);
 char name[NAME_SIZE]="[DEFAULT]";
 char msg[BUF_SIZE];
 
-int num;
+int num = 1;
 	
 int main(int argc, char *argv[])
 {
@@ -53,12 +53,14 @@ int main(int argc, char *argv[])
 	pthread_create(&rcv_thread, NULL, recv_msg, (void*)&sock);
 	//pthread_join(snd_thread, &thread_return);
 	pthread_join(rcv_thread, &thread_return);
-	//close(sock);  
+	close(sock);  
 
+    sock=socket(PF_INET, SOCK_STREAM, 0);
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family=AF_INET;
-	serv_addr.sin_addr.s_addr=inet_addr(sInfo[num-1].ip);
-	serv_addr.sin_port=htons(atoi(sInfo[num-1].port));
+	serv_addr.sin_addr.s_addr=inet_addr(sInfo[0].ip);
+	serv_addr.sin_port=htons(atoi(sInfo[0].port));
+    printf("%s %s", sInfo[0].ip, sInfo[0].port);
   
 	if(connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr))==-1)
 		error_handling("connect() error");
@@ -141,7 +143,7 @@ void * recv_msg(void * arg)   // read thread main
 		    ptr = strtok(NULL, "$");      // 다음 문자열을 잘라서 포인터를 반환
 			i++;		break;
 		}
-    	}
+   	}
 
 	sInfo[k].clnt_cnt = atoi(tmpClntCnt);
 	
