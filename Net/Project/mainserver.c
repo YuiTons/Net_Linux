@@ -58,10 +58,22 @@ int main(int argc, char* argv[])
 		strcpy(msg, "사용자를 입력하세요(1.도우미 2.사용자): ");
 		write(clnt_sock, msg, strlen(msg));
 		read(clnt_sock, &msg, 4);
-
+        i = atoi(msg);
+        if(i == 1)
+        {
+            pthread_create(&Helper_t, NULL, helper_thread, (void*)&clnt_sock);
+        }
+        else if(i == 2)
+        {
+            pthread_create(&Client_t, NULL, client_thread, (void*)&clnt_sock);
+        }
+        else
+        {
+            sprintf(msg, "잘못된 입력입니다\n");
+            write(clnt_sock, msg, strlen(msg));
+        }
 	}
 	close(serv_sock);
-	close(clnt_sock);
 
 	return 0;
 }
@@ -73,7 +85,14 @@ void* client_thread(void* arg);
 
 void* helper_thread(void* arg);
 {
+    int clnt_sock = *(int*)arg;
+    int i;
+    char msg[BUF_SIZE];
+    char Ques[QUES_SIZE];
+    char name[NAME_SIZE];
 
+    sprintf(msg, "", );
+    write(clnt_sock, msg, strlen(msg));
 }
 
 void* insert_info(void* arg);
