@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <semaphore.h>
 
 #define BUF_SIZE 1024
 #define QUES_SIZE 1024
@@ -18,6 +19,7 @@ struct QusetionInfo
 
 };
 
+void error_handling(char msg[]);
 void* client_thread(void* arg);
 void* helper_thread(void* arg);
 void* insert_info(void* arg);
@@ -53,7 +55,7 @@ int main(int argc, char* argv[])
 	while(1)
 	{
 		clnt_adr_size = sizeof(clnt_addr);
-		clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
+		clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_adr_size);
 
 		strcpy(msg, "사용자를 입력하세요(1.도우미 2.사용자): ");
 		write(clnt_sock, msg, strlen(msg));
@@ -78,12 +80,17 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void* client_thread(void* arg);
+void error_handling(char msg[])
+{
+	puts(msg);
+}
+
+void* client_thread(void* arg)
 {
 
 }
 
-void* helper_thread(void* arg);
+void* helper_thread(void* arg)
 {
     int clnt_sock = *(int*)arg;
     int i;
@@ -91,16 +98,26 @@ void* helper_thread(void* arg);
     char Ques[QUES_SIZE];
     char name[NAME_SIZE];
 
-    sprintf(msg, "", );
+    sprintf(msg, "%d", 4);
     write(clnt_sock, msg, strlen(msg));
+
+    sprintf(msg, "PL도우미 화면입니다\n");
+    write(clnt_sock, msg, strlen(msg));
+    sprintf(msg, "메뉴를 고르세요\n");
+    write(clnt_sock, msg, strlen(msg));
+    sprintf(msg, "1. 확인증 등록\n");
+    write(clnt_sock, msg, strlen(msg));
+    sprintf(msg, "2. 확인증 조회\n");
+    write(clnt_sock, msg, strlen(msg));
+
 }
 
-void* insert_info(void* arg);
+void* insert_info(void* arg)
 {
 
 }
 
-void* select_info(void* arg);
+void* select_info(void* arg)
 {
 
 }
