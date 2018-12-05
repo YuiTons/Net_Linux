@@ -16,7 +16,12 @@
 
 struct QusetionInfo
 {
-
+	char name[NAME_SIZE];
+	int  stdid;
+	char dept[DEPT_SIZE];
+	char ques[QUES_SIZE];
+	char helpname[NAME_SIZE];
+	int  helpstdid;
 };
 
 void error_handling(char msg[]);
@@ -60,20 +65,21 @@ int main(int argc, char* argv[])
 		strcpy(msg, "사용자를 입력하세요(1.도우미 2.사용자): ");
 		write(clnt_sock, msg, strlen(msg));
 		read(clnt_sock, &msg, 4);
-        i = atoi(msg);
-        if(i == 1)
-        {
-            pthread_create(&Helper_t, NULL, helper_thread, (void*)&clnt_sock);
-        }
-        else if(i == 2)
-        {
-            pthread_create(&Client_t, NULL, client_thread, (void*)&clnt_sock);
-        }
-        else
-        {
-            sprintf(msg, "잘못된 입력입니다\n");
-            write(clnt_sock, msg, strlen(msg));
-        }
+        	i = atoi(msg);
+      		if(i == 1)
+        	{
+            		pthread_create(&Helper_t, NULL, helper_thread, (void*)&clnt_sock);
+        	}
+        	else if(i == 2)
+        	{
+            		pthread_create(&Client_t, NULL, client_thread, (void*)&clnt_sock);
+        	}
+        	else
+        	{
+            		sprintf(msg, "잘못된 입력입니다\n");
+            		write(clnt_sock, msg, strlen(msg));
+        	}
+		//pthread_detach(???);
 	}
 	close(serv_sock);
 
@@ -93,7 +99,7 @@ void* client_thread(void* arg)
 void* helper_thread(void* arg)
 {
     int clnt_sock = *(int*)arg;
-    int i;
+    int i, len, recv_len = 0;
     char msg[BUF_SIZE];
     char Ques[QUES_SIZE];
     char name[NAME_SIZE];
@@ -109,7 +115,18 @@ void* helper_thread(void* arg)
     write(clnt_sock, msg, strlen(msg));
     sprintf(msg, "2. 확인증 조회\n");
     write(clnt_sock, msg, strlen(msg));
+    read(clnt_sock, &msg, 4);
 
+    switch(atoi(msg))
+    {
+	    case 1:
+		    sprintf(msg, "학번$학과$이름$질문내용$담당자$날짜");
+		    write(clnt_sock, msg, strlen(msg));
+		    len = read(clnt_sock, &msg, BUF_SIZE);
+		    break;
+	    case 2:
+		    break;
+    }
 }
 
 void* insert_info(void* arg)
