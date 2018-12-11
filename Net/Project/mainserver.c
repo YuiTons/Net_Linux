@@ -30,6 +30,8 @@ void* helper_thread(void* arg);
 void* insert_info(void* arg);
 void* select_info(void* arg);
 
+pthread_mutex_t fmutex;
+
 int main(int argc, char* argv[])
 {
 	int serv_sock, clnt_sock;
@@ -51,21 +53,26 @@ int main(int argc, char* argv[])
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv_addr.sin_port = htons(atoi(argv[1]));
-	
+
+	pthread_mutex_init(&fmutex, NULL);
+
 	if(bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) == -1)
 		error_handling("bind() error");
 	if(listen(serv_sock, 5) == -1)
 		error_handling("listen() error");
 
+
 	while(1)
 	{
 		clnt_adr_size = sizeof(clnt_addr);
 		clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_adr_size);
+		puts("connect");
 
 		strcpy(msg, "사용자를 입력하세요(1.도우미 2.사용자): ");
 		write(clnt_sock, msg, strlen(msg));
 		read(clnt_sock, &msg, 4);
         	i = atoi(msg);
+		printf("select %d\n", i);
       		if(i == 1)
         	{
             		pthread_create(&Helper_t, NULL, helper_thread, (void*)&clnt_sock);
@@ -73,11 +80,6 @@ int main(int argc, char* argv[])
         	else if(i == 2)
         	{
             		pthread_create(&Client_t, NULL, client_thread, (void*)&clnt_sock);
-        	}
-        	else
-        	{
-            		sprintf(msg, "잘못된 입력입니다\n");
-            		write(clnt_sock, msg, strlen(msg));
         	}
 		//pthread_detach(???);
 	}
@@ -100,20 +102,16 @@ void* helper_thread(void* arg)
 {
     int clnt_sock = *(int*)arg;
     int i, len, recv_len = 0;
+    int search_id;
     char msg[BUF_SIZE];
     char Ques[QUES_SIZE];
     char name[NAME_SIZE];
+    char *id;
+    FILE *Log;
 
-    sprintf(msg, "%d", 4);
-    write(clnt_sock, msg, strlen(msg));
+    Log = fopen("log.txt", "a");
 
-    sprintf(msg, "PL도우미 화면입니다\n");
-    write(clnt_sock, msg, strlen(msg));
-    sprintf(msg, "메뉴를 고르세요\n");
-    write(clnt_sock, msg, strlen(msg));
-    sprintf(msg, "1. 확인증 등록\n");
-    write(clnt_sock, msg, strlen(msg));
-    sprintf(msg, "2. 확인증 조회\n");
+    sprintf(msg, "PL도우미 화면입니다\n메뉴를 고르세요\n1. 확인증 등록\n2. 확인증 조회\n");
     write(clnt_sock, msg, strlen(msg));
     read(clnt_sock, &msg, 4);
 
@@ -123,10 +121,37 @@ void* helper_thread(void* arg)
 		    sprintf(msg, "학번$학과$이름$질문내용$담당자$날짜");
 		    write(clnt_sock, msg, strlen(msg));
 		    len = read(clnt_sock, &msg, BUF_SIZE);
+
+		    pthread_mutex_lock(&fmutex);
+		    fwrite(msg, sizeof(msg), 1, Log);
+		    pthread_mutex_unlock(&fmutex);
+
 		    break;
 	    case 2:
+		    sprintf(msg, "검색할 학번을 입력하세요");
+		    write(clnt_sock, msg, strlen(msg));
+		    len = read(clnt_sock, &msg, BUF_SIZE);
+		    search_id = atoi(msg);
+
+		    pthread_mutex_lock(&fmutex);
+		    while(fgets(msg, BUF_SIZE, Log))
+		    {
+			    pthread_mutex_unlock(&fmutex);
+			    id = strtok(msg, "$");
+			    if(atoi(id) == search_id)
+				    write(clnt_sock, msg, strlen(msg));
+			    pthread_mutex_lock(&fmutex);
+		    }
+		    pthread_mutex_unlock(&fmutex);
+
+		    write(clnt_sock, "q", 2);
+
+		    sprintf(msg, "검색완료");
+		    write(clnt_sock, msg, strlen(msg));
+
 		    break;
     }
+    fclose(Log);
 }
 
 void* insert_info(void* arg)

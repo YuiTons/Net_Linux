@@ -44,8 +44,54 @@ int main(int argc, char* argv[])
 	if(connect(sock, (struct sockaddr*)&sock_addr, sizeof(sock_addr)) == -1)
 		error_handling("connect() error");
 
-	read(sock, &msg, 1);
-	len = atoi(msg);
+	read(sock, &msg, BUF_SIZE);
+	puts(msg);
+	while(1)
+	{
+		scanf("%s", msg);
+		write(sock, msg, strlen(msg));
+		if(strcmp(msg, "1") == 0)
+		{
+			//질문자 선택
+			read(sock, &msg, BUF_SIZE);
+			puts(msg);
+
+			while(1)
+			{
+				scanf("%s", msg);
+				write(sock, msg, strlen(msg));
+				if(strcmp(msg, "1") == 0)
+				{
+					len = read(sock, &msg, BUF_SIZE);
+					msg[len] = '\0';
+					puts(msg);
+					scanf("%s", msg);
+					sprintf(msg, "%d%S", strlen(msg), msg);
+
+				}
+				else if(strcmp(msg, "2") == 0)
+				{
+				}
+				else
+				{
+					puts("잘못된 입력입니다");
+					continue;
+				}
+			}
+
+			break;
+		}
+		else if(strcmp(msg, "2") == 0)
+		{
+			//도우미 선택
+			break;
+		}
+		else
+		{
+			puts("잘못된 입력입니다");
+			continue;
+		}
+	}
 
 	for(i=0;i<len;i++)
 	{
