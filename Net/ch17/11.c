@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
 	struct epoll_event *ep_events;
 	struct epoll_event event;
-	int epfd, event_cnt, errno;
+	int epfd, event_cnt;
 
 	if(argc!=2) {
 		printf("Usage : %s <port>\n", argv[0]);
