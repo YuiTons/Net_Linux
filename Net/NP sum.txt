@@ -25,7 +25,7 @@ pthread_mutex_destroy(&mutex)
 Semaphore -> 0이면 lock(signaled), 0보다 크면 풀림(non-signaled)
 	       wait(0이 아닐때 까지 기다림), post(Semaphore값을 1 감소시킴)
 	       
-sem_init(&sem, 초기값, 최대값)
+sem_init(&sem, fork공유 플래그값(0), 초기값)
 sem_post(&sem)
 sem_wait(&sem)
 sem_destroy(&sem)
@@ -47,5 +47,6 @@ manual-reset: 반환되도 signaled로 남아있음, 수동으로 non-signaled�
 입출력 확인 필요
 }
 
-플젝: 실행파일, 데모영상, 보고서(자유양식->개발환경, 실행환경, 만든내용:flow diagram) + 풀코드(alpha) 22일
+플젝: 실행파일, 데모영상, 보고서(자유양식->개발환경, 실행환경, 만든내용:flow diagram) + a(풀코드)
+22일 deadline
 교수님 메일로 전송
