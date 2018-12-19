@@ -60,16 +60,17 @@ int main(int argc, char* argv[])
 			{
 				scanf("%s", msg);
 				write(sock, msg, strlen(msg));
-				if(strcmp(msg, "1") == 0)
+				int checknum = atoi(msg);
+				if(checknum == 1)
 				{
 					len = read(sock, &msg, BUF_SIZE);
 					msg[len] = '\0';
 					puts(msg);
 					scanf("%s", msg);
-					sprintf(msg, "%d%S", strlen(msg), msg);
+					sprintf(msg, "%ld%s", strlen(msg), msg);
 
 				}
-				else if(strcmp(msg, "2") == 0)
+				else if(checknum == 2)
 				{
 				}
 				else

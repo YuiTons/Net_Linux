@@ -120,11 +120,13 @@ void* helper_thread(void* arg)
 	    case 1:
 		    sprintf(msg, "학번$학과$이름$질문내용$담당자$날짜");
 		    write(clnt_sock, msg, strlen(msg));
+		    memset(&msg, 0, sizeof(msg));
 		    len = read(clnt_sock, &msg, BUF_SIZE);
 
 		    pthread_mutex_lock(&fmutex);
 		    fwrite(msg, sizeof(msg), 1, Log);
 		    pthread_mutex_unlock(&fmutex);
+		    puts("input complete");
 
 		    break;
 	    case 2:
