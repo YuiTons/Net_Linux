@@ -52,26 +52,60 @@ int main(int argc, char* argv[])
 		write(sock, msg, strlen(msg));
 		if(strcmp(msg, "1") == 0)
 		{
-			//질문자 선택
-			read(sock, &msg, BUF_SIZE);
+			//도우미 선택
+			read(sock, &len, 4);
+			read(sock, &msg, len);	//1,등록
+			msg[len] = '\0';
 			puts(msg);
 
 			while(1)
 			{
+				len = 0;
 				scanf("%s", msg);
 				write(sock, msg, strlen(msg));
 				int checknum = atoi(msg);
-				if(checknum == 1)
+				if(checknum == 1) //등록
 				{
-					len = read(sock, &msg, BUF_SIZE);
+					memset(&msg, 0, sizeof(msg));
+					read(sock, &len, 4);
+					read(sock, &msg, len);
+					puts(msg);
+					scanf("%s", msg);
+					int length = strlen(msg);
+					write(sock, &length, 4);
+					write(sock, msg, length);
+					read(sock, &len, 4);
+					read(sock, &msg, len);
+					msg[len] = '\0';
+					puts(msg);
+					break;
+				}
+				else if(checknum == 2) //조회
+				{
+					int flag = 0;
+					read(sock, &len, 4);
+					read(sock, &msg, len);
 					msg[len] = '\0';
 					puts(msg);
 					scanf("%s", msg);
-					sprintf(msg, "%ld%s", strlen(msg), msg);
 
-				}
-				else if(checknum == 2)
-				{
+					len = strlen(msg);
+					write(sock, &len, 4);
+					write(sock, msg, len);
+
+					read(sock, &flag, 4);
+					if(flag)
+					{
+						read(sock, &len, 4);
+						read(sock, msg, len);
+						msg[len] = '\0';
+						puts(msg);
+					}
+					else
+					{
+						puts("검색 결과 해당 학번은 등록된 기록이 없습니다");
+					}
+					break;
 				}
 				else
 				{
@@ -84,7 +118,31 @@ int main(int argc, char* argv[])
 		}
 		else if(strcmp(msg, "2") == 0)
 		{
-			//도우미 선택
+			//질문자 선택
+			int flag = 0;
+			puts("질문자 검색");
+			read(sock, &len, 4);
+			read(sock, &msg, len);
+			msg[len] = '\0';
+			puts(msg);
+			scanf("%s", msg);
+
+			len = strlen(msg);
+			write(sock, &len, 4);
+			write(sock, msg, len);
+
+			read(sock, &flag, 4);
+			if(flag)
+			{
+				read(sock, &len, 4);
+				read(sock, msg, len);
+				msg[len] = '\0';
+				puts(msg);
+			}
+			else
+			{
+				puts("검색 결과 해당 학번은 등록된 기록이 없습니다");
+			}
 			break;
 		}
 		else
@@ -94,11 +152,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	for(i=0;i<len;i++)
-	{
-		read(sock, &msg, BUF_SIZE);
-		printf("%s", msg); fflush(stdout);
-	}
+	puts("프로그램을 종료합니다");
 	return 0;
 }
 
